@@ -68,23 +68,29 @@ date_range = st.sidebar.date_input(
     [min_date, max_date]
 )
 
-countries = st.sidebar.multiselect(
-    "Страна",
-    options=sorted(df["Country"].dropna().unique()),
-    default=sorted(df["Country"].dropna().unique())
-)
+# Сначала фильтруем по дате
+filtered_by_date = df[
+    (df["InvoiceDate"].dt.date >= date_range[0]) &
+    (df["InvoiceDate"].dt.date <= date_range[1])
+]
 
-# Слайдер для Top-N стран
+# Вычисляем Top-N стран по выручке
 top_n = st.sidebar.slider(
     "Количество стран для графика", min_value=5, max_value=10, value=5
 )
 
-filtered_df = df[
-    (df["InvoiceDate"].dt.date >= date_range[0]) &
-    (df["InvoiceDate"].dt.date <= date_range[1]) &
-    (df["Country"].isin(countries))
-]
+country_sums = filtered_by_date.groupby("Country")["Revenue"].sum().sort_values(ascending=False)
+top_countries_list = country_sums.head(top_n).index.tolist()
 
+# Обновляем multiselect стран, чтобы оставались только Top-N
+countries = st.sidebar.multiselect(
+    "Страна",
+    options=sorted(top_countries_list),
+    default=sorted(top_countries_list)
+)
+
+# Фильтруем окончательно по выбранным странам
+filtered_df = filtered_by_date[filtered_by_date["Country"].isin(countries)]
 # --------------------
 # KPI
 # --------------------
@@ -183,3 +189,4 @@ with col_right:
             )
 
         st.pyplot(fig2)
+
