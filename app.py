@@ -24,23 +24,11 @@ st.markdown(
 )
 
 # --------------------
-# Генерация данных вместо CSV
+# Загрузка данных
 # --------------------
 @st.cache_data
 def load_data():
-    np.random.seed(42)
-    dates = pd.date_range(start="2023-01-01", end="2023-12-31", freq="D")
-    countries = ["Germany", "France", "UK", "Spain", "Italy", "Netherlands",
-                 "Belgium", "Sweden", "Norway", "Denmark"]
-    
-    n_rows = 5000
-    df = pd.DataFrame({
-        "InvoiceNo": np.arange(1, n_rows+1),
-        "InvoiceDate": np.random.choice(dates, size=n_rows),
-        "Country": np.random.choice(countries, size=n_rows),
-        "Quantity": np.random.randint(1, 10, size=n_rows),
-        "UnitPrice": np.random.uniform(5, 100, size=n_rows)
-    })
+    df = pd.read_csv("online_retail.csv", encoding="ISO-8859-1")
     df["InvoiceDate"] = pd.to_datetime(df["InvoiceDate"])
     df["Revenue"] = df["Quantity"] * df["UnitPrice"]
     return df
@@ -189,4 +177,5 @@ with col_right:
             )
 
         st.pyplot(fig2)
+
 
