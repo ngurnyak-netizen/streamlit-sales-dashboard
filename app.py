@@ -63,8 +63,9 @@ filtered_by_date = df[
 ]
 
 # Вычисляем Top-N стран по выручке
+max_countries = df["Country"].nunique()
 top_n = st.sidebar.slider(
-    "Количество стран для графика", min_value=5, max_value=10, value=5
+    "Количество стран для графика", min_value=1, max_value=max_countries, value=5    # топ n стран в выручке
 )
 
 country_sums = filtered_by_date.groupby("Country")["Revenue"].sum().sort_values(ascending=False)
@@ -177,5 +178,6 @@ with col_right:
             )
 
         st.pyplot(fig2)
+
 
 
